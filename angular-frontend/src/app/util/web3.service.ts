@@ -10,8 +10,9 @@ declare let window: any;
   providedIn: "root"
 })
 export class Web3Service {
-  private web3: any;
+  public web3: any;
   private accounts: string[];
+  public balance: string[];
   public ready = false;
 
   public accountsObservable = new Subject<string[]>();
@@ -21,9 +22,19 @@ export class Web3Service {
     });
   }
 
-  public bootstrapWeb3() {
-    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-    if (typeof window.web3 !== "undefined") {
+  public async bootstrapWeb3() {
+    // Wait for loading completion to avoid race conditions with web3 injection timing.
+    if (window.ethereum) {
+      try {
+        // Request account access if needed
+        await window.ethereum.enable();
+        // Acccounts now exposed
+        this.web3 = new Web3(window.ethereum);
+      } catch (error) {
+        console.error(error);
+      }
+    } else if (typeof window.web3 !== "undefined") {
+      // Checking if Web3 has been injected by the browser (Mist/MetaMask)
       // Use Mist/MetaMask's provider
       this.web3 = new Web3(window.web3.currentProvider);
     } else {
@@ -38,7 +49,7 @@ export class Web3Service {
       );
     }
 
-    setInterval(() => this.refreshAccounts(), 100);
+    setInterval(() => this.refreshAccounts(), 1000);
   }
 
   public async artifactsToContract(artifacts) {
@@ -54,7 +65,7 @@ export class Web3Service {
   }
 
   private refreshAccounts() {
-    this.web3.eth.getAccounts((err, accs) => {
+    this.web3.eth.getAccounts(async (err, accs) => {
       console.log("Refreshing accounts");
       if (err != null) {
         console.warn("There was an error fetching your accounts.");

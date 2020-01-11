@@ -1,0 +1,31 @@
+.card {
+  margin: 20px 80px;
+  background-color: #fafafa;
+}
+
+.image-center {
+  margin: auto;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+svg#clouds {
+  position: fixed;
+  bottom: -160px;
+  left: -230px;
+  z-index: -10;
+  width: 1920px;
+}
+
+.address-field {
+  width: 50%;
+}
+
+.send-metacoin {
+  display: flex;
+  flex-direction: column;
+}
